@@ -115,6 +115,10 @@ if "context" not in st.session_state:
     st.session_state.context = ""
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "docx" not in st.session_state:
+    st.session_state.docx = False
+if "json_file" not in st.session_state:
+    st.session_state.json_file = False
 
 st.write("Chat with the assistant to discuss your contract. When you're done, click **Extract Fields**.")
 
