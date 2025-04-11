@@ -119,6 +119,8 @@ if "docx" not in st.session_state:
     st.session_state.docx = False
 if "json_file" not in st.session_state:
     st.session_state.json_file = False
+if "session" not in st.session_state:
+    st.session_state.session = 0
 
 st.write("Chat with the assistant to discuss your contract. When you're done, click **Extract Fields**.")
 
@@ -154,50 +156,53 @@ if user_input:
 for sender, msg in st.session_state.messages:
     with st.chat_message(sender):
         st.markdown(msg)
-docx = False
+st.session_state.docx = False
 
 # Button to extract fields
 if st.button("📤 Extract Contract Fields"):
+    st.session_state.session = 1
+
+if st.session_state.session:
     if st.button("Employment Agreement"):
-        docx = "employment_agreement.docx"
-        json_file = "employment_agreement.json"
+        st.session_state.docx = "employment_agreement.docx"
+        st.session_state.json_file = "employment_agreement.json"
         
     if st.button("Paid internship Agreement"):
-        docx = "paid_internship_agreement.docx"
-        json_file = "paid_internship_agreement.json"
+        st.session_state.docx = "paid_internship_agreement.docx"
+        st.session_state.json_file = "paid_internship_agreement.json"
 
     if st.button("Model Partnership Agreement"):
-        docx = "model_partnership_agreement.docx"
-        json_file = "model_partnership_agreement.json"
+        st.session_state.docx = "model_partnership_agreement.docx"
+        st.session_state.json_file = "model_partnership_agreement.json"
     
     if st.button("Non Disclosure Agreement"):
-        docx = "non_disclosure_agreement.docx"
-        json_file = "non_disclosure_agreement.json"
+        st.session_state.docx = "non_disclosure_agreement.docx"
+        st.session_state.json_file = "non_disclosure_agreement.json"
     
-if docx:
-    print("yaaaaaaay")
-    JSON_FILE = os.path.join("json_templates", json_file)
+if st.session_state.docx:
+    JSON_FILE = os.path.join("json_templates", st.session_state.json_file)
     with open(JSON_FILE, 'r') as f:
         fields = json.load(f)
     replacements = {}
     context = get_context()
     for field in fields:
         prompt = f"Generate a realistic value for: {field} with the context {context}, just the answer not anything else"
-        temp = llm.complete(prompt=prompt).text 
-        if temp:
-            replacements[field] = temp
-        else:
-            prompt = f"Ask relavent question to know about the {field} in this context"
-            temp = llm.complete(prompt=prompt).text
+        replacements[field] = llm.complete(prompt=prompt).text 
+        # if temp:
+        #     replacements[field] = temp
+        # else:
+        #     prompt = f"Ask relavent question to know about the {field} in this context"
+        #     temp = llm.complete(prompt=prompt).text
             
 
         print(f"{field} => {replacements[field]}")
+    st.subheader("📑 Extracted Contract Details (JSON):")
+    st.json(replacements)
+    
 
-    # docx = 
-    updated_doc = replace_placeholders_in_docx(os.path.join("docs_words", docx), replacements)
-    updated_doc.save(os.path.join("outputs", docx))
-    print(f"Saved updated DOCX as {os.path.join("outputs", docx)}")
+    updated_doc = replace_placeholders_in_docx(os.path.join("docs_words", st.session_state.docx), replacements)
+    updated_doc.save(os.path.join("outputs", st.session_state.docx))
+    print(f"Saved updated DOCX as {os.path.join("outputs", st.session_state.docx)}")
 
-extracted = extract_fields_from_context(st.session_state.context)
-st.subheader("📑 Extracted Contract Details (JSON):")
-st.json(extracted)
+# extracted = extract_fields_from_context(st.session_state.context)
+# 
