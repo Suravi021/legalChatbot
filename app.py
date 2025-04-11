@@ -189,9 +189,8 @@ if docx:
 
         print(f"{field} => {replacements[field]}")
 
-    docx = os.path.join("docs_words", docx)
-
-    updated_doc = replace_placeholders_in_docx(docx, replacements)
+    # docx = 
+    updated_doc = replace_placeholders_in_docx(os.path.join("docs_words", docx), replacements)
     updated_doc.save(os.path.join("outputs", docx))
     print(f"Saved updated DOCX as {os.path.join("outputs", docx)}")
 
